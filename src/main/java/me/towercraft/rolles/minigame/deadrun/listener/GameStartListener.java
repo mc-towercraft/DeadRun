@@ -1,6 +1,14 @@
 package me.towercraft.rolles.minigame.deadrun.listener;
 
+import me.towercraft.rolles.minigame.deadrun.Deadrun;
+import me.towercraft.rolles.minigame.deadrun.afk.AFKCheck;
+import me.towercraft.rolles.minigame.deadrun.enumerate.GameState;
+import me.towercraft.rolles.minigame.deadrun.event.GameStartEvent;
 import me.towercraft.rolles.minigame.deadrun.handler.ArenaHandler;
+import me.towercraft.rolles.minigame.deadrun.util.storage.StorageGameStateDB;
+import me.towercraft.rolles.minigame.deadrun.util.storage.StoragePlayersCounterDB;
+import me.towercraft.rolles.minigame.deadrun.util.storage.StorageSpectatorsDB;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,54 +27,24 @@ public class GameStartListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-
+        if (StorageGameStateDB.getState() == GameState.WAITING) {
+            StoragePlayersCounterDB.incrementValue();
+            if (StoragePlayersCounterDB.getValue() == 1) {
+                StorageGameStateDB.setState(GameState.STARTING);
+                ArenaHandler.timer();
+            }
+        }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-
+        StoragePlayersCounterDB.decrementValue();
     }
-
-    public ArrayList<Block> getBlocksBelow(Player player) {
-        ArrayList<Block> blocksBelow = new ArrayList<>();
-        Location location = player.getLocation();
-        double x = location.getX();
-        double z = location.getZ();
-        World world = player.getWorld();
-        double yBelow = player.getLocation().getBlock().getRelative(BlockFace.DOWN).getY();
-        Block northEast = new Location(world, x + 0.3, yBelow, z - 0.3).getBlock();
-        Block northWest = new Location(world, x - 0.3, yBelow, z - 0.3).getBlock();
-        Block southEast = new Location(world, x + 0.3, yBelow, z + 0.3).getBlock();
-        Block southWest = new Location(world, x - 0.3, yBelow, z + 0.3).getBlock();
-        Block[] blocks = {northEast, northWest, southEast, southWest};
-        for (Block block : blocks) {
-            if (!blocksBelow.isEmpty()) {
-                boolean duplicateExists = false;
-                for (int i = 0; i < blocksBelow.size(); i++) {
-                    if (blocksBelow.get(i).equals(block)) {
-                        duplicateExists = true;
-                    }
-                }
-                if (!duplicateExists) {
-                    blocksBelow.add(block);
-                }
-            } else {
-                blocksBelow.add(block);
-            }
-        }
-        return blocksBelow;
-    }
-
-    public void removeBlock(Block block) {
-        if (block.getType() != Material.AIR) {
-            block.getRelative(BlockFace.DOWN).setType(Material.AIR);
-            block.setType(Material.AIR);
-        }
-    }
-
 
     @EventHandler
-    public void onRun(PlayerMoveEvent event) {
-        ArenaHandler.removeBlocks();
+    public void onGameStart(GameStartEvent event) {
+        StorageGameStateDB.setState(GameState.PLAYING);
+        Bukkit.getPluginManager().registerEvents(new ArenaListener(), Deadrun.plugin);
+        Deadrun.afkCheck = new AFKCheck();
     }
 }

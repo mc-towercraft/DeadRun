@@ -1,6 +1,6 @@
 name: DeadRun
 version: '${project.version}'
-main: me.towercraft.rolles.minigame.deadrun.DeadRun
+main: me.towercraft.rolles.minigame.deadrun.Deadrun
 prefix: DeadRun
 authors: [ Rolles ]
 description: Run to survive
