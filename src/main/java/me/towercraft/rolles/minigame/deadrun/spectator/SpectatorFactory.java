@@ -72,6 +72,8 @@ public class SpectatorFactory {
         if (!ghostTeam.hasPlayer(player)) {
             ghostTeam.addPlayer(player);
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 15));
+            player.setFlying(true);
+            player.setAllowFlight(true);
         }
     }
 

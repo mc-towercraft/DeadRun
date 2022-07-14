@@ -1,7 +1,7 @@
 package me.towercraft.rolles.minigame.deadrun.command;
 
 import me.towercraft.rolles.minigame.deadrun.Deadrun;
-import me.towercraft.rolles.minigame.deadrun.util.storage.notification.Sender;
+import me.towercraft.rolles.minigame.deadrun.util.notification.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -2,10 +2,13 @@ package me.towercraft.rolles.minigame.deadrun.handler;
 
 import me.towercraft.rolles.minigame.deadrun.Deadrun;
 import me.towercraft.rolles.minigame.deadrun.blockbelow.BlockBelow;
+import me.towercraft.rolles.minigame.deadrun.enumerate.GameState;
 import me.towercraft.rolles.minigame.deadrun.event.GameStartEvent;
 import me.towercraft.rolles.minigame.deadrun.location.Location;
+import me.towercraft.rolles.minigame.deadrun.util.storage.StorageGameStateDB;
 import me.towercraft.rolles.minigame.deadrun.util.storage.StoragePlayersDB;
 import me.towercraft.rolles.minigame.deadrun.util.storage.StorageSpectatorsDB;
+import me.towercraft.rolles.minigame.deadrun.util.notification.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,28 +32,30 @@ public class ArenaHandler {
     }
 
     public static void afkCheck() {
-       Bukkit.getScheduler().scheduleAsyncRepeatingTask(Deadrun.plugin, () -> {
-           HashMap<Player, Location> playerLocation = new HashMap<>();
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(Deadrun.plugin, () -> {
+            if (StorageGameStateDB.getState() == GameState.PLAYING) {
+                HashMap<Player, Location> playerLocation = new HashMap<>();
 
-           StorageSpectatorsDB.getNotSpectators().forEach(player -> playerLocation.put(player, new Location(
-                   (int) player.getLocation().getX(), (int) player.getLocation().getZ())));
+                StorageSpectatorsDB.getNotSpectators().forEach(player -> playerLocation.put(player, new Location(
+                        (int) player.getLocation().getX(), (int) player.getLocation().getZ())));
 
-           List<Player> afkPlayers = StoragePlayersDB.getValue().entrySet()
-                   .stream().filter(player -> playerLocation.get(player.getKey()).equals(player.getValue()))
-                   .map(Map.Entry::getKey).collect(Collectors.toList());
+                List<Player> afkPlayers = StoragePlayersDB.getValue().entrySet()
+                        .stream().filter(player -> playerLocation.get(player.getKey()).equals(player.getValue()))
+                        .map(Map.Entry::getKey).collect(Collectors.toList());
 
-           System.out.println(afkPlayers);
-           if (afkPlayers.size() >= 1) {
-               afkPlayers.forEach(player -> new BlockBelow(player).getBlocks().forEach(ArenaHandler::removeBlocks));
-           }
-            StoragePlayersDB.setMap(playerLocation);
-       }, 0, 8);
+                if (afkPlayers.size() >= 1) {
+                    afkPlayers.forEach(player -> new BlockBelow(player).getBlocks().forEach(ArenaHandler::removeBlocks));
+                }
+                StoragePlayersDB.setMap(playerLocation);
+            }
+        }, 0, 8);
     }
 
     public static void timer() {
         Bukkit.getScheduler().scheduleAsyncDelayedTask(Deadrun.plugin, () -> {
             for (int i = 3; i >= 0; i--) {
-                Bukkit.broadcastMessage("Осталось: " + i);
+                Sender.messageForListPlayers(Deadrun.message.getString("arena.start").replace("<time>", String.valueOf(i)));
+                Sender.titleForListPlayers(String.valueOf(i));
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

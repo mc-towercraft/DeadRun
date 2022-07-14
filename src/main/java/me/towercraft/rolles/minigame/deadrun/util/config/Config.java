@@ -1,4 +1,4 @@
-package me.towercraft.rolles.minigame.deadrun.util.storage.config;
+package me.towercraft.rolles.minigame.deadrun.util.config;
 
 import com.google.common.io.ByteStreams;
 import me.towercraft.rolles.minigame.deadrun.Deadrun;

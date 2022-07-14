@@ -12,6 +12,7 @@ import java.util.List;
 public final class Storage {
     public static HashMap<Player, Location> playersLocation = new HashMap<>();
     public static List<Player> spectators = new ArrayList<>();
+    public static List<Player> places = new ArrayList<>();
     public static Integer playersCounter = 0;
     public static GameState gameState = GameState.WAITING;
 }
