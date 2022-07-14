@@ -6,4 +6,6 @@ authors: [ Rolles ]
 description: Run to survive
 website: https://towercraft.me/
 commands:
-  dr: {}
+  dr:
+    description: "spawn area"
+    aliases: ["deadrun", "tntrun", "tr"]
